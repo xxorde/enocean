@@ -9,8 +9,22 @@ import sys
 import traceback
 from time import sleep
 import paho.mqtt.client as paho
-from enocean.example.devicelist_example import *
+from devicelist_example import *
 import threading, logging
+
+def print_packet_type(packet_type):
+    types = {
+      PACKET.RESERVED: 'RESERVED',
+      PACKET.RADIO: 'RADIO',
+      PACKET.RESPONSE: 'RESPONSE',
+      PACKET.RADIO_SUB_TEL: 'RADIO_SUB_TEL',
+      PACKET.EVENT: 'EVENT',
+      PACKET.COMMON_COMMAND: 'COMMON_COMMAND',
+      PACKET.SMART_ACK_COMMAND: 'SMART_ACK_COMMAND',
+      PACKET.REMOTE_MAN_COMMAND: 'REMOTE_MAN_COMMAND',
+      PACKET.RADIO_MESSAGE: 'RADIO_MESSAGE',
+      PACKET.RADIO_ADVANCED: 'RADIO_ADVANCED'}
+    return types[packet_type]
 
 try:
     import queue
@@ -25,10 +39,12 @@ def eno_worker(wstop):
     while 1:
         try:
             if wstop.isSet():
+                mainlogger.debug("wstop.isSet()")
                 break
 
             # Loop to empty the queue...
             packet = esp2com.receive.get(block=True, timeout=1)
+            mainlogger.debug("packet type:%s,\t rorg:%s", print_packet_type(packet.packet_type), packet.rorg)
 
             if (packet.packet_type in [PACKET.RADIO, PACKET.EVENT]) and (packet.rorg in [RORG.RPS, RORG.BS4, RORG.BS1]):
 
@@ -228,7 +244,7 @@ stream_handler.setLevel(logging.DEBUG)
 stream_handler.setFormatter(formatter)
 mainlogger.addHandler(stream_handler)
 
-esp2com = ESP2SerialCommunicator()
+esp2com = ESP2SerialCommunicator(port='/dev/ttyUSB0')
 cmqtt = paho.Client(client_id="", clean_session=True)
 cmqtt.username_pw_set(username="", password="")
 cmqtt.message_callback_add("my/home/automation/topic", on_message_set_brightness)
@@ -242,7 +258,7 @@ cmqtt.on_message = on_message
 cmqtt.on_connect = on_connect
 cmqtt.on_disconnect = on_disconnect
 
-cmqtt.connect("", port=0000)
+cmqtt.connect("127.0.0.1", port=1883)
 esp2com.start()
 
 wstop = threading.Event()

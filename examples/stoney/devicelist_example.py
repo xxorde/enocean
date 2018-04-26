@@ -1,4 +1,9 @@
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+'''
+Example to ...
+'''
+
 from enocean.manufacturer.eltako import *
 
 roomsensors = []
