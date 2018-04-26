@@ -15,6 +15,7 @@ setup(
         'enocean',
         'enocean.protocol',
         'enocean.communicators',
+        'enocean.manufacturer',
     ],
     scripts=[
         'examples/enocean_example.py',
