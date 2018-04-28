@@ -43,19 +43,31 @@ def eno_worker(wstop):
                 break
 
             # Loop to empty the queue...
-            packet = esp2com.receive.get(block=True, timeout=1)
-            mainlogger.debug("packet type:%s,\t rorg:%s", print_packet_type(packet.packet_type), packet.rorg)
+            packet = esp2com.receive.get(block=True, timeout=0.1)
+            #mainlogger.debug("packet type:%s, rorg:%s, packet:%s", print_packet_type(packet.packet_type), packet.rorg, packet)
 
-            if (packet.packet_type in [PACKET.RADIO, PACKET.EVENT]) and (packet.rorg in [RORG.RPS, RORG.BS4, RORG.BS1]):
+            # parse FTS14EM events
+            if(packet.packet_type in[PACKET.RESERVED]) and(packet.rorg in[RORG.UNDEFINED]):
+                id = packet.data[5], packet.data[6], packet.data[7], packet.data[8]
+                if packet.data[1] in [0x70, 0x50, 0x30, 0x20, 0x10] :
+                    mainlogger.debug("Eltako FTS14EM rocker switch, %s, PRESS %s", id, hex(packet.data[1]))
+                elif packet.data[1] == 0x00 :
+                    mainlogger.debug("Eltako FTS14EM rocker switch, %s, RELEASED", id)
+
+            elif (packet.packet_type in [PACKET.RADIO, PACKET.EVENT]) and (packet.rorg in [RORG.RPS, RORG.BS4, RORG.BS1]):
 
                 button = rockers.new_event(packet)
                 if button is not None:
+                    mainlogger.debug("button is not None")
                     if button[1] is RockerEvent.Press:
                         cmqtt.publish("my/home/automation/topic/button/press", payload=button[0], qos=2, retain=False)
+                        mainlogger.debug("RockerEvent.Press")
                     if button[1] is RockerEvent.Longpress_2s:
                         cmqtt.publish("my/home/automation/topic/button/longpress2", payload=button[0], qos=2, retain=False)
+                        mainlogger.debug("RockerEvent.Longpress_2s")
                     if button[1] is RockerEvent.Longpress_5s:
                         cmqtt.publish("my/home/automation/topic/button/longpress5", payload=button[0], qos=2, retain=False)
+                        mainlogger.debug("RockerEvent.Longpress_5s")
 
                 for item in hygrometer:
                     if packet.sender_hex == item.ID:
