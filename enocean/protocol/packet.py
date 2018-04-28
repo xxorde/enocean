@@ -350,11 +350,11 @@ class Packet(object):
               Might be useful for acting as a repeater?
         '''
 
-        if packet_type != PACKET.RADIO:
-            # At least for now, only support PACKET.RADIO.
+        if packet_type not in [PACKET.RADIO, PACKET.RESERVED]:
+            # At least for now, only support PACKET.RADIO and PACKET.RESERVED.
             raise ValueError('Packet type not supported by this function.')
 
-        if rorg not in [RORG.RPS, RORG.BS1, RORG.BS4]:
+        if rorg not in [RORG.UNDEFINED, RORG.RPS, RORG.BS1, RORG.BS4]:
             # At least for now, only support these RORGS.
             raise ValueError('RORG not supported by this function.')
 
@@ -498,8 +498,8 @@ class RadioPacket(Packet):
 
     @staticmethod
     def create_ESP2(rorg, rorg_func, rorg_type, direction=None, command=None,
-               destination=None, sender=None, learn=False, **kwargs):
-        return Packet.create_ESP2(PACKET.RADIO, rorg, direction, command, destination, sender, learn, **kwargs)
+               destination=None, sender=None, learn=False, packet_type=PACKET.RADIO, **kwargs):
+        return Packet.create_ESP2(packet_type, rorg, direction, command, destination, sender, learn, **kwargs)
 
     @property
     def sender_int(self):
