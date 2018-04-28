@@ -184,7 +184,7 @@ def on_message_set_dimmerstate(client, userdata, message):
 
 def on_message_light_toggle(client, userdata, message):
     mainlogger.debug("on_message_light_toggle(client, userdata, message):")
-    for item in schwitches:
+    for item in switches:
         if item.Name in message.topic:
             eno_msg = item.send_toggle()
             SendSwToggle(esp2com, eno_msg)
