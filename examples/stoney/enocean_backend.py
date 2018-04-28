@@ -49,7 +49,7 @@ def eno_worker(wstop):
             # parse FTS14EM events
             if(packet.packet_type in[PACKET.RESERVED]) and(packet.rorg in[RORG.UNDEFINED]):
                 id = packet.data[5], packet.data[6], packet.data[7], packet.data[8]
-                if packet.data[1] in [0x70, 0x50, 0x30, 0x20, 0x10] :
+                if packet.data[1] in [0x70, 0x50, 0x30, 0x10] :
                     mainlogger.debug("Eltako FTS14EM rocker switch, %s, PRESS %s", id, hex(packet.data[1]))
                 elif packet.data[1] == 0x00 :
                     mainlogger.debug("Eltako FTS14EM rocker switch, %s, RELEASED", id)
