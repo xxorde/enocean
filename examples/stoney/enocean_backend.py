@@ -50,9 +50,9 @@ def eno_worker(wstop):
             if(packet.packet_type in[PACKET.RESERVED]) and(packet.rorg in[RORG.UNDEFINED]):
                 id = packet.data[5], packet.data[6], packet.data[7], packet.data[8]
                 if packet.data[1] in [0x70, 0x50, 0x30, 0x10] :
-                    mainlogger.debug("Eltako FTS14EM rocker switch, %s, PRESS %s", id, hex(packet.data[1]))
+                    mainlogger.debug("Eltako FTS14EM rocker switch, %s, PRESS %s", [hex(o) for o in id], hex(packet.data[1]))
                 elif packet.data[1] == 0x00 :
-                    mainlogger.debug("Eltako FTS14EM rocker switch, %s, RELEASED", id)
+                    mainlogger.debug("Eltako FTS14EM rocker switch, %s, RELEASED", [hex(o) for o in id])
 
             elif (packet.packet_type in [PACKET.RADIO, PACKET.EVENT]) and (packet.rorg in [RORG.RPS, RORG.BS4, RORG.BS1]):
 
