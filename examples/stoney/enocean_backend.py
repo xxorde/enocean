@@ -46,6 +46,28 @@ def eno_worker(wstop):
             packet = esp2com.receive.get(block=True, timeout=0.1)
             #mainlogger.debug("packet type:%s, rorg:%s, packet:%s", print_packet_type(packet.packet_type), packet.rorg, packet)
 
+            # toggle all switches
+            # type:RESERVED, rorg:RORG.UNDEFINED, packet:0x00 ['0xf6', '0x70', '0x0', '0x0', '0x0', '0x0', '0x0', '0x10', '0x1', '0x30'] [] OrderedDict()
+            for item in switches:
+                msg = RadioPacket.create_ESP2(rorg=0x00, rorg_func=0x00, rorg_type=0x00,
+                                        sender = [0x00, 0x00, 0x10, 0x01],
+                                        destination = [0x00, 0x00, 0x00, 0x01],
+                                        command=[RockerButton.RightTop, 0x00, 0x00, 0x00],
+                                        status = MSGSTATUS.T2NMsg,
+                                        packet_type = 0x00
+                                        )
+                msg.packet_type = PACKET.RESERVED
+                msg.rorg = RORG.UNDEFINED
+                #msg.sender = []
+                #msg.destination = []
+                #msg.destination = [0x00, 0x00, 0x00, 0x01]
+                msg.data = [0xf6, 0x70, 0x0, 0x0, 0x0, 0x0, 0x0, 0x10, 0x1, 0x30]
+
+                mainlogger.debug("packet type:%s, rorg:%s, packet:%s", print_packet_type(msg.packet_type), msg.rorg, msg)
+                esp2com.send(msg)
+                sleep(1.2)
+
+
             # parse FTS14EM events
             if(packet.packet_type in[PACKET.RESERVED]) and(packet.rorg in[RORG.UNDEFINED]):
                 id = packet.data[5], packet.data[6], packet.data[7], packet.data[8]
@@ -142,6 +164,7 @@ def eno_worker(wstop):
 
 
 def SendSwToggle(communicator, messages):
+    mainlogger.debug("SendSwToggle")
     communicator.send(messages[0])
     sleep(0.1)
     communicator.send(messages[1])
@@ -160,6 +183,7 @@ def on_message_set_dimmerstate(client, userdata, message):
 
 
 def on_message_light_toggle(client, userdata, message):
+    mainlogger.debug("on_message_light_toggle(client, userdata, message):")
     for item in schwitches:
         if item.Name in message.topic:
             eno_msg = item.send_toggle()
