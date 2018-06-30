@@ -61,7 +61,7 @@ def eno_worker(wstop):
                 #msg.sender = []
                 #msg.destination = []
                 #msg.destination = [0x00, 0x00, 0x00, 0x01]
-                msg.data = [0xf6, 0x70, 0x0, 0x0, 0x0, 0x0, 0x0, 0x10, 0x1, 0x30]
+                msg.data = [0xf6, 0x70, 0x0, 0x0, 0x0, 0x0, 0x0, 0x10, 0x05, 0x30]
 
                 mainlogger.debug("packet type:%s, rorg:%s, packet:%s", print_packet_type(msg.packet_type), msg.rorg, msg)
                 esp2com.send(msg)
